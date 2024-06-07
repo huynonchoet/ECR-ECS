@@ -85,7 +85,7 @@ jobs:
 
       - name: print all images
         run: |
-          echo ${{ needs.build_docker_images }}
+          echo ${{ needs.build_docker_images.outputs }}
 
   # deploy_ecs:
   #   needs: build_docker_images
