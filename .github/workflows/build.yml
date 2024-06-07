@@ -85,10 +85,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - env:
-        OUTPUT1: ${{needs.build_docker_images.outputs.image1}}
-        OUTPUT2: ${{needs.build_docker_images.outputs.image2}}
-      run: echo "$OUTPUT1 $OUTPUT2"
+      - name: checkout code
+        uses: actions/checkout@v2
+      - name: print all images
+        run: |
+          echo "${{needs.build_docker_images.outputs.image1}}"
+          echo "${{needs.build_docker_images.outputs.image2}}"
 
   # deploy_ecs:
   #   needs: build_docker_images
