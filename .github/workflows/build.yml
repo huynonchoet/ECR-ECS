@@ -22,10 +22,12 @@ jobs:
             repo_name: laravel-app
             image_tag: 011224898113.dkr.ecr.ap-southeast-1.amazonaws.com/laravel-app:latest
             api: true
+            stt: 1
           - docker_file: ./docker/ecs/nginx/Dockerfile
             image_name: webimage
             repo_name: laravel-web
             image_tag: 011224898113.dkr.ecr.ap-southeast-1.amazonaws.com/laravel-web:latest
+            stt: 2
 
     steps:
       - name: checkout code
@@ -52,6 +54,7 @@ jobs:
       #     context: .
       #     file: ${{matrix.docker_file}}
       #     push: true
+      #     platforms: linux/amd64
       #     tags: ${{matrix.image_tag}}
       #     cache-from: type=gha
       #     cache-to: type=gha,mode=max
@@ -65,13 +68,14 @@ jobs:
           IMAGE_TAG: latest
 
         run: |
-          echo "image_name=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "image_${{matrix.stt}}=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       # - name: Print image name
       #   run: |
       #     echo ${{ steps.set-variables.outputs.image }}
     outputs:
-      matrix_output : ${{ steps.set-variables.outputs.image_name }}
+      image1 : ${{ steps.set-variables.outputs.image_1 }}
+      image2 : ${{ steps.set-variables.outputs.image_2 }}
 
 
   print_all_images:
@@ -81,12 +85,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout code
-        uses: actions/checkout@v2
-
-      - name: print all images
-        run: |
-          echo "${{ toJSON(needs) }}"
+      - env:
+        OUTPUT1: ${{needs.build_docker_images.outputs.image1}}
+        OUTPUT2: ${{needs.build_docker_images.outputs.image2}}
+      run: echo "$OUTPUT1 $OUTPUT2"
 
   # deploy_ecs:
   #   needs: build_docker_images
