@@ -117,10 +117,10 @@ jobs:
       #     container-name: ${{ secrets.ECS_NGINX_CONTAINER_NAME }}
       #     image: ${{ steps.build-image.outputs.webimage }}
 
-      # - name: Deploy Amazon ECS task definition
-      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      #   with:
-      #     task-definition: task-definition.json
-      #     service: laravel-service
-      #     cluster: laravel-clt
-      #     wait-for-service-stability: true
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          service: laravel-service
+          cluster: laravel-clt
+          wait-for-service-stability: true
