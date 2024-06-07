@@ -24,8 +24,8 @@ jobs:
             api: true
           - docker_file: ./docker/ecs/nginx/Dockerfile
             image_name: webimage
-            repo_name: laravel-nginx
-            image_tag: 011224898113.dkr.ecr.ap-southeast-1.amazonaws.com/laravel-web
+            repo_name: laravel-web
+            image_tag: 011224898113.dkr.ecr.ap-southeast-1.amazonaws.com/laravel-web:latest
 
     steps:
       - name: checkout code
@@ -66,7 +66,7 @@ jobs:
         run: |
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Print image ame
+      - name: Print image name
         run: |
           echo ${{ steps.set-variables.outputs.image }}
 

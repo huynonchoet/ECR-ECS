@@ -1,0 +1,70 @@
+version: '3'
+services:
+
+  #PHP Service
+  app:
+    build:
+      context: .
+      dockerfile: docker/ecs/php/Dockerfile
+    container_name: exam-app
+    restart: unless-stopped
+    tty: true
+    working_dir: /var/www
+    volumes:
+      - ./docker/ecs/php/php-prd.ini:/usr/ecs/etc/php/conf.d/local.ini
+      - ./docker/ecs/php/www.conf:/usr/ecs/etc/php-fpm.d/www.conf
+    networks:
+      - app-network
+    depends_on:
+      - db
+
+  #Nginx Service
+  webserver:
+    build:
+      context: .
+      dockerfile: docker/ecs/nginx/Dockerfile
+    container_name: exam-webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./public:/var/www/public
+      - ./storage:/var/www/storage
+      - ./docker/ecs/nginx/conf.d/:/etc/nginx/conf.d/
+      - ./docker/ecs/nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - app-network
+    depends_on:
+      - app
+
+
+  # MySQL Service
+  db:
+    build:
+      context: .
+      dockerfile: docker/ecs/mysql/Dockerfile
+    platform: linux/arm64
+    container_name: example-db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      SERVICE_NAME: mysql
+    volumes:
+      - exam-dbdata:/var/lib/mysql/
+      - ./docker/ecs/mysql/my.cnf:/etc/mysql/my.cnf
+      - ./docker/ecs/mysql/setup.sql:/docker-entrypoint-initdb.d/setup.sql
+    networks:
+      - app-network
+
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
+#Volumes
+volumes:
+  exam-dbdata:
+    driver: local

@@ -77,13 +77,13 @@ WORKDIR /var/www
 COPY . /var/www
 
 # Create laravel.log & install composer
-# RUN set -eux \
-#     && touch /var/www/storage/logs/laravel.log \
-#     && chown -R www-data:www-data /var/www \
-#     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-#     && composer install --optimize-autoloader --no-dev \
-#     && php artisan view:cache \
-#     && php artisan route:cache
+RUN set -eux \
+    && touch /var/www/storage/logs/laravel.log \
+    && chown -R www-data:www-data /var/www \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+    && composer install --optimize-autoloader --no-dev \
+    && php artisan view:cache \
+    && php artisan route:cache
 
 COPY ./docker/ecs/php/entrypoint.sh /
 RUN set -eux \
