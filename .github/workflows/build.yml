@@ -71,7 +71,7 @@ jobs:
       #   run: |
       #     echo ${{ steps.set-variables.outputs.image }}
     outputs:
-      matrix_output : ${{ step.set-variables.outputs.image_name }}
+      matrix_output : ${{ steps.set-variables.outputs.image_name }}
 
 
   print_all_images:
