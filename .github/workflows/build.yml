@@ -65,13 +65,13 @@ jobs:
           IMAGE_TAG: latest
 
         run: |
-          echo "${{matrix.image_name}}=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "image_name=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       # - name: Print image name
       #   run: |
       #     echo ${{ steps.set-variables.outputs.image }}
-    # outputs:
-    #   ${{matrix.image_name}} :
+    outputs:
+      matrix_output : ${{ step.set-variables.outputs.image_name }}
 
 
   print_all_images:
@@ -86,7 +86,7 @@ jobs:
 
       - name: print all images
         run: |
-          echo ${{ tojson(needs.build_docker_images.outputs) }}
+          echo "${{ toJSON(needs) }}" | jq -r '.["build_docker_images"][] | "Output: \(.outputs.matrix_output)"'
 
   # deploy_ecs:
   #   needs: build_docker_images
