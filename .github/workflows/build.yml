@@ -86,7 +86,7 @@ jobs:
 
       - name: print all images
         run: |
-          echo "${{ toJSON(needs) }}" | jq -r '.["build_docker_images"][] | "Output: \(.outputs.matrix_output)"'
+          echo "${{ toJSON(needs) }}"
 
   # deploy_ecs:
   #   needs: build_docker_images
