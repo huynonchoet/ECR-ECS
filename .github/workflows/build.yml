@@ -75,7 +75,25 @@ jobs:
       web_image : ${{ steps.set-variables.outputs.image_web }}
 
 
-  print_all_images:
+  # print_all_images:
+  #   needs: build_docker_images
+
+  #   name: Modify task definition and deploy to ecs
+  #   runs-on: ubuntu-latest
+
+  #   env:
+  #     appImage: ${{needs.build_docker_images.outputs.app_image}}
+  #     webImage: ${{needs.build_docker_images.outputs.web_image}}
+
+  #   steps:
+  #     - name: checkout code
+  #       uses: actions/checkout@v2
+  #     - name: print all images
+  #       run: |
+  #         echo "$appImage"
+  #         echo "$webImage"
+
+  deploy_ecs:
     needs: build_docker_images
 
     name: Modify task definition and deploy to ecs
@@ -88,53 +106,39 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v2
-      - name: print all images
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::011224898113:role/TestOIDC
+          role-session-name: samplerolesession
+          aws-region: ap-southeast-1
+
+      - name: Download task definition
         run: |
-          echo "$appImage"
-          echo "$webImage"
+          aws ecs describe-task-definition --task-definition ${{ secrets.ECS_CONTAINER_DEFINITION }} \
+          --query taskDefinition > task-definition.json
 
-  # deploy_ecs:
-  #   needs: build_docker_images
-
-  #   name: Modify task definition and deploy to ecs
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: checkout code
-  #       uses: actions/checkout@v2
-
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         role-to-assume: arn:aws:iam::011224898113:role/TestOIDC
-  #         role-session-name: samplerolesession
-  #         aws-region: ap-southeast-1
-
-  #     - name: Download task definition
-  #       run: |
-  #         aws ecs describe-task-definition --task-definition ${{ secrets.ECS_CONTAINER_DEFINITION }} \
-  #         --query taskDefinition > task-definition.json
-
-  #     - name: Fill in the new app image ID in the Amazon ECS task definition
-  #       id: app-task-def
-  #       uses: aws-actions/amazon-ecs-render-task-definition@v1
-  #       with:
-  #         task-definition: task-definition.json
-  #         container-name: ${{ secrets.ECS_APP_CONTAINER_NAME }}
-  #         image: ${{ steps.build-image.outputs.appimage }}
-
-  #     - name: Fill in the new nginx image ID in the Amazon ECS task definition
-  #       id: web-task-def
-  #       uses: aws-actions/amazon-ecs-render-task-definition@v1
-  #       with:
-  #         task-definition: ${{ steps.app-task-def.outputs.task-definition }}
-  #         container-name: ${{ secrets.ECS_NGINX_CONTAINER_NAME }}
-  #         image: ${{ steps.build-image.outputs.webimage }}
-
-      # - name: Deploy Amazon ECS task definition
-      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      # - name: Fill in the new app image ID in the Amazon ECS task definition
+      #   id: app-task-def
+      #   uses: aws-actions/amazon-ecs-render-task-definition@v1
       #   with:
-      #     task-definition: ${{ steps.web-task-def.outputs.task-definition }}
-      #     service: testserviceelb
-      #     cluster: testelb
-      #     wait-for-service-stability: true
+      #     task-definition: task-definition.json
+      #     container-name: ${{ secrets.ECS_APP_CONTAINER_NAME }}
+      #     image: ${{ steps.build-image.outputs.appimage }}
+
+      # - name: Fill in the new nginx image ID in the Amazon ECS task definition
+      #   id: web-task-def
+      #   uses: aws-actions/amazon-ecs-render-task-definition@v1
+      #   with:
+      #     task-definition: ${{ steps.app-task-def.outputs.task-definition }}
+      #     container-name: ${{ secrets.ECS_NGINX_CONTAINER_NAME }}
+      #     image: ${{ steps.build-image.outputs.webimage }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          service: laravel-service
+          cluster: laravel-clt
+          wait-for-service-stability: true
