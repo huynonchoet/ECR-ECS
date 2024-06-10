@@ -8,3 +8,7 @@ Route::get('/', function () {
 Route::get('/test', function() {
     return "ABCD1234";
 });
+
+Route::get('/test123', function() {
+    return "ABCD1234";
+});
