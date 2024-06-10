@@ -56,12 +56,13 @@ jobs:
       #     tags: ${{matrix.image_tag}}
       #     cache-from: type=gha
       #     cache-to: type=gha,mode=max
+
       - name: Build, tag, and push image to Amazon ECR
-      id: build-image
-      run: |
-        docker build -t ${{matrix.image_tag}} -f ${{matrix.docker_file}} . --platform linux/amd64
-        docker push ${{matrix.image_tag}}
-        echo "image=${{matrix.image_tag}}" >> $GITHUB_OUTPUT
+        id: build-image
+        run: |
+          docker build -t ${{matrix.image_tag}} -f ${{matrix.docker_file}} . --platform linux/amd64
+          docker push ${{matrix.image_tag}}
+          echo "image=${{matrix.image_tag}}" >> $GITHUB_OUTPUT
 
       - name: Set variables
         id: set-variables
