@@ -60,7 +60,8 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         run: |
-          docker build -t ${{matrix.image_tag}} -f ${{matrix.docker_file}} . --platform linux/amd64
+          export DOCKER_DEFAULT_PLATFORM=linux/amd64
+          docker build -t ${{matrix.image_tag}} -f ${{matrix.docker_file}} .
           docker push ${{matrix.image_tag}}
           echo "image=${{matrix.image_tag}}" >> $GITHUB_OUTPUT
 
