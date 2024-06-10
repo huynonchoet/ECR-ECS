@@ -11,7 +11,7 @@ permissions:
 jobs:
   build_docker_images:
     name: Build image php & nginx
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
